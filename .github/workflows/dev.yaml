@@ -1,0 +1,27 @@
+name: Development
+
+on:
+  push:
+    branches: [ dev ]
+
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  develop-test:
+    name: Develop Branch - Test Only
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Check Formatting
+      run: cargo fmt --all -- --check
+
+    - name: Run Clippy (Lint)
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
+    - name: Run Tests
+      run: cargo test --all
