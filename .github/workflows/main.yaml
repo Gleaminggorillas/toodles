@@ -1,0 +1,82 @@
+name: Main
+  
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Develop Branch - Test Only
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Check Formatting
+      run: cargo fmt --all -- --check
+
+    - name: Run Clippy (Lint)
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
+    - name: Run Tests
+      run: cargo test --all
+
+  main-ci:
+    name: Audit, BOM
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install Tools
+      run: |
+        rustup component add clippy rustfmt
+        cargo install cargo-audit
+        cargo install cargo-tarpaulin
+        cargo install cargo-geiger
+        cargo install cyclonedx-bom
+
+    - name: Dependency Vulnerability Scan
+      run: cargo audit
+
+    - name: Scan for Unsafe Code (cargo-geiger)
+      run: cargo geiger
+
+    - name: Run Coverage (Tarpaulin)
+      run: cargo tarpaulin --out xml --timeout 120
+
+    - name: Generate SBOM (CycloneDX)
+      run: cyclonedx-bom
+
+    - name: Upload SBOM Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom
+        path: bom.xml
+
+    # - name: Scan for Secrets (Gitleaks)
+    #   uses: gitleaks/gitleaks-action@v2
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # - name: Upload Coverage
+    #   uses: codecov/codecov-action@v5
+    #   with:
+    #     files: cobertura.xml
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     fail_ci_if_error: false
+
