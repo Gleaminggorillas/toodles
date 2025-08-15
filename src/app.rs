@@ -43,12 +43,11 @@ impl App {
     pub fn handle_events(&mut self) -> color_eyre::Result<()> {
         match self.events.next()? {
             Event::Tick => self.tick(),
-            Event::Crossterm(event) => match event {
-                ratatui::crossterm::event::Event::Key(key_event) => {
+            Event::Crossterm(event) => {
+                if let ratatui::crossterm::event::Event::Key(key_event) = event {
                     self.handle_key_event(key_event)?
                 }
-                _ => {}
-            },
+            }
             Event::App(app_event) => match app_event {
                 AppEvent::Increment => self.increment_counter(),
                 AppEvent::Decrement => self.decrement_counter(),

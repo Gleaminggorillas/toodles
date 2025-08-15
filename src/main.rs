@@ -12,22 +12,11 @@ fn main() -> color_eyre::Result<()> {
     result
 }
 
-// fn run(mut terminal: DefaultTerminal) -> Result<()> {
-//     loop {
-//         terminal.draw(draw)?;
-//         if let Event::Key(key) = event::read()? {
-//             if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
-//                 break Ok(());
-//             }
-//         }
-//     }
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use insta::assert_snapshot;
-    use ratatui::widgets::Padding;
+    // use ratatui::widgets::Padding;
     use ratatui::{Terminal, backend::TestBackend};
 
     #[test]
