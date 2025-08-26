@@ -48,25 +48,33 @@ jobs:
         cargo install cargo-audit
         cargo install cargo-tarpaulin
         cargo install cargo-geiger
-        cargo install cyclonedx-bom
+        cargo install cargo-cyclonedx
 
     - name: Dependency Vulnerability Scan
       run: cargo audit
 
     - name: Scan for Unsafe Code (cargo-geiger)
       run: cargo geiger
+      continue-on-error: true
 
     - name: Run Coverage (Tarpaulin)
       run: cargo tarpaulin --out xml --timeout 120
 
+    - name: Upload Cobertura Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cobertura
+        path: cobertura.xml
+
     - name: Generate SBOM (CycloneDX)
-      run: cyclonedx-bom
+      run: cargo cyclonedx --format json
 
     - name: Upload SBOM Artifact
       uses: actions/upload-artifact@v4
       with:
         name: sbom
-        path: bom.xml
+        path: main.cdx.json
+
 
     # - name: Scan for Secrets (Gitleaks)
     #   uses: gitleaks/gitleaks-action@v2

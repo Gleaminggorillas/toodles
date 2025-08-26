@@ -1,2 +1,5 @@
 /target
 .actrc
+cobertura.xml
+main.cdx.xml
+main.cdx.json
